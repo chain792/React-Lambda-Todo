@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  GetTodo:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: samGetTodo
+      Handler: getTodo.lambda_handler
+      Runtime: ruby3.2
+      Timeout: 10
+      CodeUri: ./todo/get
+      MemorySize: 128
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+        GetApi:
+          Type: Api
+          Properties:
+            Path: /todo
+            Method: get
+            RestApiId: !Ref API
+  CreateTodo:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: samCreateTodo
+      Handler: createTodo.lambda_handler
+      Runtime: ruby3.2
+      Timeout: 10
+      CodeUri: ./todo/create
+      MemorySize: 128
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+        GetApi:
+          Type: Api
+          Properties:
+            Path: /todo
+            Method: post
+            RestApiId: !Ref API
+  UpdateTodo:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: samUpdateTodo
+      Handler: updateTodo.lambda_handler
+      Runtime: ruby3.2
+      Timeout: 10
+      CodeUri: ./todo/update
+      MemorySize: 128
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+        GetApi:
+          Type: Api
+          Properties:
+            Path: /todo
+            Method: patch
+            RestApiId: !Ref API
+  DeleteTodo:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: samDeleteTodo
+      Handler: deleteTodo.lambda_handler
+      Runtime: ruby3.2
+      Timeout: 10
+      CodeUri: ./todo/delete
+      MemorySize: 128
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+        GetApi:
+          Type: Api
+          Properties:
+            Path: /todo
+            Method: delete
+            RestApiId: !Ref API
+  API:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: sam-todo-api
+      EndpointConfiguration: REGIONAL
+      StageName: dev
+      # 不要な「Stage」ステージが作られるのを防ぐ
+      OpenApiVersion: 3.0.2
+  TodoDB:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: Number
+      TableName: todo
+  SequenceDB:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: tablename
+        Type: String
+      TableName: sequence
